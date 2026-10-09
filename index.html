@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Precio de casas en California</title>
+  <style>
+    :root { --bg:#0f172a; --card:#1e293b; --input:#334155; --accent:#38bdf8; --text:#e2e8f0; --muted:#94a3b8; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: linear-gradient(160deg, #0f172a 0%, #1e3a5f 100%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem;
+    }
+    header { text-align: center; margin-bottom: 1.5rem; }
+    header h1 { font-size: 1.6rem; margin-bottom: .4rem; }
+    header p { color: var(--muted); font-size: .95rem; }
+    .card {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 1.5rem;
+      width: 100%;
+      max-width: 640px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.35);
+    }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: .9rem; }
+    label { display: block; font-size: .8rem; color: var(--muted); margin-bottom: .25rem; }
+    input {
+      width: 100%;
+      padding: .55rem .7rem;
+      border-radius: 8px;
+      border: 1px solid var(--input);
+      background: var(--input);
+      color: var(--text);
+      font-size: .95rem;
+    }
+    input:focus { outline: 2px solid var(--accent); border-color: transparent; }
+    button {
+      margin-top: 1.2rem;
+      width: 100%;
+      padding: .75rem;
+      border: none;
+      border-radius: 8px;
+      background: var(--accent);
+      color: #0f172a;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    button:hover { filter: brightness(1.1); }
+    button:disabled { opacity: .6; cursor: wait; }
+    #resultado {
+      margin-top: 1.2rem;
+      padding: 1rem;
+      border-radius: 8px;
+      background: rgba(56,189,248,.08);
+      border: 1px solid rgba(56,189,248,.35);
+      text-align: center;
+      display: none;
+    }
+    #resultado .precio { font-size: 2rem; font-weight: 800; color: var(--accent); }
+    #resultado .det { color: var(--muted); font-size: .85rem; margin-top: .3rem; }
+    #error { display: none; margin-top: 1rem; color: #f87171; text-align: center; font-size: .9rem; }
+    footer { margin-top: 1.5rem; color: var(--muted); font-size: .8rem; text-align: center; }
+    footer a { color: var(--accent); text-decoration: none; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Predicción del precio de casas en California</h1>
+    <p>Introduce las características de una zona censal y obtén el precio estimado</p>
+  </header>
+
+  <div class="card">
+    <form id="form">
+      <div class="grid">
+        <div>
+          <label for="MedInc">Ingresos medios (MedInc)</label>
+          <input id="MedInc" name="MedInc" type="number" step="0.01" value="8.3252" required>
+        </div>
+        <div>
+          <label for="HouseAge">Antigüedad media (años)</label>
+          <input id="HouseAge" name="HouseAge" type="number" step="0.1" value="41.0" required>
+        </div>
+        <div>
+          <label for="AveRooms">Habitaciones medias</label>
+          <input id="AveRooms" name="AveRooms" type="number" step="0.01" value="6.9841" required>
+        </div>
+        <div>
+          <label for="AveBedrms">Dormitorios medios</label>
+          <input id="AveBedrms" name="AveBedrms" type="number" step="0.01" value="1.0238" required>
+        </div>
+        <div>
+          <label for="Population">Población</label>
+          <input id="Population" name="Population" type="number" step="0.1" value="322.0" required>
+        </div>
+        <div>
+          <label for="AveOccup">Ocupantes medios por vivienda</label>
+          <input id="AveOccup" name="AveOccup" type="number" step="0.01" value="2.5556" required>
+        </div>
+        <div>
+          <label for="Latitude">Latitud</label>
+          <input id="Latitude" name="Latitude" type="number" step="0.0001" value="37.88" required>
+        </div>
+        <div>
+          <label for="Longitude">Longitud</label>
+          <input id="Longitude" name="Longitude" type="number" step="0.0001" value="-122.23" required>
+        </div>
+      </div>
+      <button id="btn" type="submit">Predecir precio</button>
+    </form>
+
+    <div id="resultado">
+      <div class="precio" id="precio"></div>
+      <div class="det">cientos de miles de USD · ~<span id="usd"></span></div>
+    </div>
+    <div id="error"></div>
+  </div>
+
+  <footer>
+    David Araiz Saez · Daniel Bernal Anzano —
+    API: <a href="/docs">/docs</a> · Health: <a href="/health">/health</a>
+  </footer>
+
+  <script>
+    const form = document.getElementById('form');
+    const btn = document.getElementById('btn');
+    const resultado = document.getElementById('resultado');
+    const error = document.getElementById('error');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      btn.disabled = true;
+      btn.textContent = 'Calculando...';
+      resultado.style.display = 'none';
+      error.style.display = 'none';
+
+      const campos = ['MedInc','HouseAge','AveRooms','AveBedrms','Population','AveOccup','Latitude','Longitude'];
+      const payload = {};
+      campos.forEach(c => payload[c] = parseFloat(document.getElementById(c).value));
+
+      try {
+        const res = await fetch('/predict', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.detail || `Error HTTP ${res.status}`);
+        }
+        const data = await res.json();
+        const v = data.MedHouseVal;
+        document.getElementById('precio').textContent = v.toFixed(2);
+        document.getElementById('usd').textContent = '$' + Math.round(v * 100000).toLocaleString('es-ES');
+        resultado.style.display = 'block';
+      } catch (err) {
+        error.textContent = err.message;
+        error.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Predecir precio';
+      }
+    });
+  </script>
+</body>
+</html>

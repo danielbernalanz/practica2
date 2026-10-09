@@ -14,6 +14,7 @@ import joblib
 import pandas as pd
 import requests
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import FileResponse, HTMLResponse
 from pydantic import BaseModel
 
 MODEL_PATH = "modelo_california.pkl"
@@ -67,7 +68,13 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="Precio de casas en California", lifespan=lifespan)
 
 
-@app.get("/")
+@app.get("/", response_class=HTMLResponse)
+def home():
+    """Página web principal con el formulario de predicción."""
+    return FileResponse("index.html")
+
+
+@app.get("/health")
 def health():
     """Health-check: confirma que el servicio está funcionando."""
     return {"status": "ok"}

@@ -8,7 +8,8 @@ Autores: David Araiz Saez, Daniel Bernal Anzano
 
 ## Contenido del repositorio
 
-- `app.py`: servicio FastAPI con los endpoints `/` (health-check) y `/predict`.
+- `app.py`: servicio FastAPI con los endpoints `/` (formulario web), `/health` (health-check) y `/predict`.
+- `index.html`: página web con formulario para predecir el precio.
 - `model_training.py`: script que entrena el modelo y genera el `.pkl`.
 - `modelo_california.pkl`: modelo entrenado.
 - `requirements.txt`: dependencias del proyecto.
