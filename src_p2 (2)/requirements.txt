@@ -1,0 +1,4 @@
+# TODO: Las dependencias para ejecutar app.py en producción.
+# Puedes incluir las necesarias para entrenar el modelo tambien.
+# Revisa los imports de app.py y decide cuáles son necesarias.
+
