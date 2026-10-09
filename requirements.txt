@@ -1,0 +1,9 @@
+fastapi>=0.115
+uvicorn[standard]>=0.30
+joblib>=1.4
+pandas>=2.2
+requests>=2.32
+pydantic>=2.7
+# Dependencias de model_training.py (entrenamiento y visualización)
+scikit-learn>=1.5
+matplotlib>=3.9

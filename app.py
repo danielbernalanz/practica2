@@ -1,8 +1,6 @@
-"""Plantilla: servicio web para el modelo de precios de casas en California.
+"""Servicio web para el modelo de precios de casas en California.
 
-Solo tienes que completar las partes marcadas con TODO.
-El resto del código ya está hecho.
-Autores: <nombre1>, <nombre2>
+Autores: David Araiz Saez, Daniel Bernal Anzano
 
 Ejecución en local (con modelo_california.pkl generado en el ejercicio 1):
     uvicorn app:app --reload
@@ -19,9 +17,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
 MODEL_PATH = "modelo_california.pkl"
-# TODO: URL "raw" del modelo en TU repositorio de GitHub. Formato:
-# https://raw.githubusercontent.com/<usuario>/<repositorio>/main/modelo_california.pkl
-MODEL_URL = "https://raw.githubusercontent.com/<usuario>/<repositorio>/main/modelo_california.pkl"
+MODEL_URL = "https://raw.githubusercontent.com/danielbernalanz/practica2/main/modelo_california.pkl"
 DOWNLOAD_TIMEOUT = 30  # segundos
 
 # El modelo se carga al arrancar y se guarda aquí.
@@ -47,8 +43,10 @@ def download_model(url: str = MODEL_URL, path: str = MODEL_PATH):
     resultado con response.raise_for_status() y escribe response.content en
     el fichero abriéndolo en modo binario ("wb").
     """
-    # TODO: implementa la descarga
-    raise NotImplementedError("Completa download_model()")
+    response = requests.get(url, timeout=DOWNLOAD_TIMEOUT)
+    response.raise_for_status()
+    with open(path, "wb") as f:
+        f.write(response.content)
 
 
 def load_model(path: str = MODEL_PATH):

@@ -1,7 +1,0 @@
-{
-    "python.defaultInterpreterPath": "/home/alumno/venv-p1/bin/python",
-    "python.terminal.activateEnvironment": true,
-    "terminal.integrated.defaultProfile.linux": "bash",
-    "files.trimTrailingWhitespace": true,
-    "files.insertFinalNewline": true
-}
